@@ -33,10 +33,10 @@ function apiSearch(event) {
 
             output.results.forEach(function(item) {
                 let nameItem = item.name || item.title;
+                let mediaType = item.title ? 'movie' : 'tv';
                 const poster = item.poster_path ? urlPoster + item.poster_path : './img/noPoster.png';
-                let dataInfo = '';
+                let dataInfo = `data-id="${item.id}" data-type="${mediaType}"`;
 
-                if (item.media_type !== 'person') dataInfo = `data-id="${item.id}" data-type="${item.media_type}"`;
 
                 inner += `
                 <div class="col-12 col-md-6 col-xl-3 item">
@@ -66,7 +66,38 @@ function addEventMedia() {
 }
 
 function showFullInfo() {
-    console.log(this)
+    let url = '';
+
+    if (this.dataset.type === 'movie') {
+        url = 'https://api.themoviedb.org/3/movie/' + this.dataset.id + '?api_key=9bbf2aadf327c17b26d2c35440604b5d&language=ru'
+    } else if (this.dataset.type === 'tv') {
+        url = 'https://api.themoviedb.org/3/tv/' + this.dataset.id + '?api_key=9bbf2aadf327c17b26d2c35440604b5d&language=ru'
+    } else {
+        movie.innerHTML = `<h2 class="col-12 text-center text-danger">Произошла ошибка, повторите через несколько минут</h2>`
+    }
+
+    fetch(url)
+        .then(function(value) {
+
+            if (value.status !== 200) {
+                return Promise.reject(value);
+            }
+            return value.json()
+
+        })
+        .then(function(output) {
+
+            console.log(output)
+            movie.innerHTML = `
+            <h4 class="col-12 text-center text-info">${output.name || output.tittle}</h4>
+            <div class="col-4"></div>
+            <div class="col-8"></div>
+            `;
+        })
+        .catch(function(err) {
+            movie.innerHTML = 'Упс, что-то пошло не так!';
+            console.error('error ' + err)
+        })
 }
 
 document.addEventListener('DOMContentLoaded', function() {
