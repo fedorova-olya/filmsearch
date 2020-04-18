@@ -15,7 +15,7 @@ function apiSearch(event) {
     movie.innerHTML = '<div class="spinner"></div>';
 
     fetch('https://api.themoviedb.org/3/search/multi?api_key=9bbf2aadf327c17b26d2c35440604b5d&language=ru&query=' + searchText)
-        .then(function(value) {
+        .then(function (value) {
 
             if (value.status !== 200) {
                 return Promise.reject(value);
@@ -23,7 +23,7 @@ function apiSearch(event) {
             return value.json()
 
         })
-        .then(function(output) {
+        .then(function (output) {
             let inner = '';
 
             if (output.results.length === 0) {
@@ -31,7 +31,7 @@ function apiSearch(event) {
 
             };
 
-            output.results.forEach(function(item) {
+            output.results.forEach(function (item) {
                 let nameItem = item.name || item.title;
                 let mediaType = item.title ? 'movie' : 'tv';
                 const poster = item.poster_path ? urlPoster + item.poster_path : './img/noPoster.png';
@@ -49,7 +49,7 @@ function apiSearch(event) {
             addEventMedia();
 
         })
-        .catch(function(err) {
+        .catch(function (err) {
             movie.innerHTML = 'Упс, что-то пошло не так!';
             console.error('error ' + err)
         })
@@ -59,7 +59,7 @@ searchForm.addEventListener('submit', apiSearch);
 
 function addEventMedia() {
     const media = movie.querySelectorAll('img[data-id]');
-    media.forEach(function(elem) {
+    media.forEach(function (elem) {
         elem.style.cursor = 'pointer';
         elem.addEventListener('click', showFullInfo);
     })
@@ -77,7 +77,7 @@ function showFullInfo() {
     }
 
     fetch(url)
-        .then(function(value) {
+        .then(function (value) {
 
             if (value.status !== 200) {
                 return Promise.reject(value);
@@ -85,24 +85,36 @@ function showFullInfo() {
             return value.json()
 
         })
-        .then(function(output) {
+        .then(function (output) {
 
             console.log(output)
             movie.innerHTML = `
-            <h4 class="col-12 text-center text-info">${output.name || output.tittle}</h4>
-            <div class="col-4"></div>
-            <div class="col-8"></div>
+            <h4 class="col-12 text-center text-info">${output.name || output.title}</h4>
+            <div class="col-4">
+            <img src="${urlPoster + output.poster_path}" alt="${output.name || output.title}">
+            ${(output.homepage) ? `<p class='text-center'><a href="${output.homepage}" target="_blank">Официальная страница</a></p>` : ''}
+             ${(output.imdb_id) ? `<p class='text-center'><a href="https://imdb.com/title/${output.imdb_id}" target="_blank">Страница на IMDB.com</a></p>` : ''}
+            </div>
+            <div class="col-8">
+            <p>Рейтинг: ${output.vote_average}</p>
+            <p>Статус: ${output.status}</p>
+            <p>Премьера: ${output.first_air_date || output.release_date}</p>
+
+            ${(output.last_episode_to_air) ? `<p>сезонов: ${output.number_of_seasons} 
+            серий: ${output.last_episode_to_air.episode_number}  </p>` : ''}
+            <p>${output.overview}</p>
+            </div>
             `;
         })
-        .catch(function(err) {
+        .catch(function (err) {
             movie.innerHTML = 'Упс, что-то пошло не так!';
             console.error('error ' + err)
         })
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     fetch('https://api.themoviedb.org/3/trending/all/week?api_key=9bbf2aadf327c17b26d2c35440604b5d&language=ru')
-        .then(function(value) {
+        .then(function (value) {
 
             if (value.status !== 200) {
                 return Promise.reject(value);
@@ -110,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return value.json()
 
         })
-        .then(function(output) {
+        .then(function (output) {
             let inner = '<h2 class="col-12 text-center text-info">Популярные за неделю</h2>';
 
             if (output.results.length === 0) {
@@ -118,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             };
 
-            output.results.forEach(function(item) {
+            output.results.forEach(function (item) {
                 let nameItem = item.name || item.title;
                 const poster = item.poster_path ? urlPoster + item.poster_path : './img/noPoster.png';
                 let dataInfo = '';
@@ -136,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addEventMedia();
 
         })
-        .catch(function(err) {
+        .catch(function (err) {
             movie.innerHTML = 'Упс, что-то пошло не так!';
             console.error('error ' + err)
         })
